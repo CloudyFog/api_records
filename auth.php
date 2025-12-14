@@ -1,26 +1,43 @@
 <?php
+
+include('db.php');
+
+
 $becuri = [
-    "dormitor" => false,
-    "baie"     => false, 
-    "bucatarie" => false,
-    "living"   => false
+    "bedroom" => false,
+    "bathroom" => false, 
+    "kitchen" => false,
+    "living" => false
 ];
-   
-header('Content-Type: application/json');
-if(isset($_GET['users'])){
-    echo "User aparut"; 
+
+switch ($_POST['actiune']){
+    case 'Open':
+        foreach($becuri as $key => $value){
+            $becuri[$key] = true;
+        }
+        break;
+    case 'Close':
+        foreach($becuri as $key => $value){
+            $becuri[$key] = false;
+        }
+        break;
+    case 'bedroom':
+        $becuri['bedroom'] = true;
+        break;
+    case 'bathroom':
+        $becuri['bathroom'] = true;
+        break;
+    case 'kitchen':
+        $becuri['kitchen'] = true;
+        break;
+    case 'living':
+        $becuri['living'] = true;
+        break;
+    default:
+        break;
 }
-if(isset($_POST['dormitor'])){
-$becuri['dormitor'] = true;
+
+ if(isset($_GET['statusuri'])){
+    echo json_encode($becuri);
 }
-if(isset($_POST['baie'])){
-$becuri['baie'] = true;
-}
-if(isset($_POST['bucatarie'])){
-$becuri['bucatarie'] = true;
-}
-if(isset($_POST['living'])){
-$becuri['living'] = true;
-}
-echo json_encode($becuri);
 ?>
