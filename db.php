@@ -2,7 +2,7 @@
 $host = "localhost";
 $db   = "lights";
 $user = "root";
-$pass = ""; // parola ta
+$pass = ""; 
 
 try {
     $pdo = new PDO(
