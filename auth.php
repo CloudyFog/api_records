@@ -1,43 +1,75 @@
 <?php
 
-include('db.php');
+include('db.php'); 
 
 
-$becuri = [
-    "bedroom" => false,
-    "bathroom" => false, 
-    "kitchen" => false,
-    "living" => false
-];
+$Table = 'light_states';
+$id_state = 1;
 
-switch ($_POST['actiune']){
-    case 'Open':
-        foreach($becuri as $key => $value){
-            $becuri[$key] = true;
+if(isset($_POST['actiune'])) {
+    
+    $sql = "";
+    
+    switch ($_POST['actiune']) {
+        case 'Open':
+    
+            $sql = "UPDATE $Table SET bedroom = 1, bathroom = 1, kitchen = 1, living = 1 WHERE id = :id";
+            break;
+            
+        case 'Close':
+           
+            $sql = "UPDATE $Table SET bedroom = 0, bathroom = 0, kitchen = 0, living = 0 WHERE id = :id";
+            break;
+            
+       default:
+    $coloane_valide = ['bedroom', 'bathroom', 'kitchen', 'living'];
+    $actiune = $_POST['actiune'];
+    
+    // Verificam daca actiunea primita este un nume de coloana valid
+    if (in_array($actiune, $coloane_valide)) {
+        // Construim interogarea in mod dinamic
+        $sql = "UPDATE $Table SET $actiune = 1 - $actiune WHERE id = :id";
+    }
+    // Daca actiunea nu este nici Open, nici Close, nici o camera, $sql ramane gol si nu se executa nimic
+    break;
+    }
+
+    if (!empty($sql)) {
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':id', $id_state, PDO::PARAM_INT); 
+            $stmt->execute();
+
+        } catch (PDOException $e) {
+          
         }
-        break;
-    case 'Close':
-        foreach($becuri as $key => $value){
-            $becuri[$key] = false;
-        }
-        break;
-    case 'bedroom':
-        $becuri['bedroom'] = true;
-        break;
-    case 'bathroom':
-        $becuri['bathroom'] = true;
-        break;
-    case 'kitchen':
-        $becuri['kitchen'] = true;
-        break;
-    case 'living':
-        $becuri['living'] = true;
-        break;
-    default:
-        break;
+    }
 }
 
- if(isset($_GET['statusuri'])){
-    echo json_encode($becuri);
+if (isset($_GET['statusuri'])) {
+    
+    $sql_select = "SELECT bedroom, bathroom, kitchen, living FROM $Table WHERE id = :id";
+    
+    try {
+        $stmt_select = $pdo->prepare($sql_select);
+        $stmt_select->bindParam(':id', $id_state, PDO::PARAM_INT);
+        $stmt_select->execute();
+        
+        $stari_db = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+    
+        $becuri = [
+            'bedroom' => (bool)$stari_db['bedroom'],
+            'bathroom' => (bool)$stari_db['bathroom'],
+            'kitchen' => (bool)$stari_db['kitchen'],
+            'living' => (bool)$stari_db['living'],
+        ];
+
+        echo json_encode($becuri);
+
+    } catch (PDOException $e) {
+    
+        echo json_encode(['error' => 'Couldnt read data']);
+    }
 }
 ?>
