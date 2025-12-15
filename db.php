@@ -31,7 +31,7 @@ try {
     ]);
 
 
-    echo "Starea luminii a fost introdusa cu succes. ID-ul introdus este: " . $pdo->lastInsertId();
+    echo "Starea luminii s-a bagat " . $pdo->lastInsertId();
 
 } catch (PDOException $e) {
   
