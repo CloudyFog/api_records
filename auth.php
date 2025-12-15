@@ -25,12 +25,12 @@ if(isset($_POST['actiune'])) {
     $coloane_valide = ['bedroom', 'bathroom', 'kitchen', 'living'];
     $actiune = $_POST['actiune'];
     
-    // Verificam daca actiunea primita este un nume de coloana valid
+    
     if (in_array($actiune, $coloane_valide)) {
-        // Construim interogarea in mod dinamic
+       
         $sql = "UPDATE $Table SET $actiune = 1 - $actiune WHERE id = :id";
     }
-    // Daca actiunea nu este nici Open, nici Close, nici o camera, $sql ramane gol si nu se executa nimic
+    
     break;
     }
 
