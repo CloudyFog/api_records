@@ -65,29 +65,47 @@ if(isset($_POST['actiune'])) {
 }
 
 if (isset($_GET['statusuri'])) {
-    
+    $camere = ['bedroom', 'bathroom', 'kitchen', 'living'];
+    $durate_totale = [];
     $sql_select = "SELECT bedroom, bathroom, kitchen, living FROM $Table WHERE id = :id";
-    
     try {
         $stmt_select = $pdo->prepare($sql_select);
         $stmt_select->bindParam(':id', $id_state, PDO::PARAM_INT);
         $stmt_select->execute();
-        
         $stari_db = $stmt_select->fetch(PDO::FETCH_ASSOC);
-
-    
-        $becuri = [
-            'bedroom' => (bool)$stari_db['bedroom'],
-            'bathroom' => (bool)$stari_db['bathroom'],
-            'kitchen' => (bool)$stari_db['kitchen'],
-            'living' => (bool)$stari_db['living'],
-        ];
-
-        echo json_encode($becuri);
+        $rezultat_final = [];
+        foreach ($camere as $camera) {
+            $sql_duration = "
+                SELECT 
+                    SUM(TIMESTAMPDIFF(SECOND, l1.time, 
+                       (SELECT MIN(l2.time) FROM $Table_Log l2 
+                        WHERE l2.room_name = l1.room_name 
+                          AND l2.status = 0 
+                          AND l2.time > l1.time
+                       )
+                    )) AS total_seconds_on
+                FROM $Table_Log l1
+                WHERE l1.room_name = :room AND l1.status = 1;
+            ";
+            
+            $stmt_duration = $pdo->prepare($sql_duration);
+            $stmt_duration->bindParam(':room', $camera);
+            $stmt_duration->execute();
+            $result = $stmt_duration->fetch(PDO::FETCH_ASSOC);
+            $total_seconds = (int)$result['total_seconds_on'];
+            $hours = floor($total_seconds / 3600);
+            $minutes = floor(($total_seconds % 3600) / 60);
+            $seconds = $total_seconds % 60;
+            $rezultat_final[$camera] = [
+                'status' => (bool)$stari_db[$camera],
+                'total_time_on' => sprintf("%02dh %02dm %02ds", $hours, $minutes, $seconds),
+                'total_seconds' => $total_seconds
+            ];
+        }
+        header('Content-Type: application/json');
+        echo json_encode($rezultat_final);
 
     } catch (PDOException $e) {
-    
-        echo json_encode(['error' => 'Couldnt read data']);
     }
 }
 ?>
