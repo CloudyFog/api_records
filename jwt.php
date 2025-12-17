@@ -9,8 +9,8 @@ function base64url_encode($data) {
 function base64url_decode($data) {
     return base64_decode(strtr($data, '-_', '+/'));
 }
-
-function generate_jwt($payload, $exp = 3600) {
+//am modificat $exp din 3600, ca sa expire cat mai tarziu, sa avem timp sa facem testele fara grija ca expira tokenul
+function generate_jwt($payload, $exp = 3600000) {
     global $JWT_SECRET;
 
     $header = ['alg' => 'HS256', 'typ' => 'JWT'];
