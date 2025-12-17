@@ -14,7 +14,7 @@ if (!$action) {
     exit;
 }
 
-/* REGISTER */
+/* register */
 if ($action === "register") {
 
     if (!isset($data['email'], $data['password'])) {
@@ -48,7 +48,7 @@ if ($action === "register") {
     exit;
 }
 
-/* LOGIN */
+/* login */
 if ($action === "login") {
 
     if (!isset($data['email'], $data['password'])) {
@@ -89,9 +89,11 @@ if ($action === "login") {
     exit;
 }
 
-/* INVALID ACTION */
+/* actiune invalida */
 http_response_code(404);
 echo json_encode([
     "success" => false,
     "message" => "Actiune invalida"
 ]);
+
+?>
