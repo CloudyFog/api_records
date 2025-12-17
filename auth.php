@@ -102,7 +102,7 @@ if (isset($_GET['statusuri'])) {
                 'total_seconds' => $total_seconds
             ];
         }
-        
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode($rezultat_final);
 
     } catch (PDOException $e) {
