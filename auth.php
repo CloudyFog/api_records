@@ -23,18 +23,18 @@ if(isset($_POST['actiune'])) {
         case 'living':
             $room_name_to_log = $_POST['actiune'];
             $is_individual_toggle = true; 
-            // ATENȚIE: Numele coloanei se pune direct în string (cu validare switch), nu ca parametru ?
+      
             $sql = "UPDATE $Table SET {$room_name_to_log} = 1 - {$room_name_to_log} WHERE id = ?";
             break;
     }
 
     if (!empty($sql)) {
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $id_state); // "i" înseamnă integer
+        $stmt->bind_param("i", $id_state); 
         $stmt->execute();
 
         if ($is_individual_toggle) {
-            // Luăm noul status
+     
             $sql_select_new = "SELECT {$room_name_to_log} FROM $Table WHERE id = ?";
             $stmt_select = $conn->prepare($sql_select_new);
             $stmt_select->bind_param("i", $id_state);
@@ -42,10 +42,10 @@ if(isset($_POST['actiune'])) {
             $result_new = $stmt_select->get_result();
             $new_status = $result_new->fetch_row()[0];
 
-            // Inserăm în log
+   
             $sql_log = "INSERT INTO $Table_Log (room_name, status, time) VALUES (?, ?, NOW())";
             $stmt_log = $conn->prepare($sql_log);
-            $stmt_log->bind_param("si", $room_name_to_log, $new_status); // "s" pt string, "i" pt integer
+            $stmt_log->bind_param("si", $room_name_to_log, $new_status); 
             $stmt_log->execute();
         }
     }
